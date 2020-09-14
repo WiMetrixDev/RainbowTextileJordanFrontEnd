@@ -14,6 +14,7 @@ const AddCutJob = props => {
     const [modalVisible, setModalVisible] = React.useState(false)
     const [loading,setLoading] = React.useState(false)
     const [sizes,setSizes] = React.useState([])
+    const [partNames,setPartNames] = React.useState([])
     // const [styles,setStyles] = React.useState([])
     // const [colors,setColors] = React.useState([])
     // const [tableValues,setTableValues] = React.useState([])
@@ -22,6 +23,7 @@ const AddCutJob = props => {
     
     React.useEffect(()=>{
         fetchMarkers()
+        fetchPartNames()
     },[])
 
     React.useEffect(()=>{
@@ -54,6 +56,25 @@ const AddCutJob = props => {
                 .then(res => {
                     console.log(res)
                     setMarkers(res.Markers)
+                })
+                .catch(err => {
+                    console.log('err in fetching', err)
+                    setMarkers([])
+                })
+        } catch (err) {
+            console.log('try catch error: ', err)
+            setMarkers([])
+        }
+    }
+    const fetchPartNames = () => {
+        try {
+            fetch(api_endpoint + '/Jordan/SPTS/cutReport/getPartNames.php')
+                .then(res => res.json())
+                .then(res => {
+                    console.log(res)
+                    if(res.Part_Names){
+                        setPartNames(res.Part_Names)
+                    }
                 })
                 .catch(err => {
                     console.log('err in fetching', err)
@@ -166,7 +187,17 @@ const AddCutJob = props => {
                     <TextField name='no_of_layers' variant="outlined" label="No Of Layers" values={state.no_of_layers} onChange={e=>setState({...state,no_of_layers:e.target.value})} fullWidth />
                 </Grid>
                 <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
-                    <TextField name='part_name' variant="outlined" label="Part Name" values={state.part_name} onChange={e=>setState({...state,part_name:e.target.value})} fullWidth />
+                    <Autocomplete
+                        //id="combo-box-demo"
+                        options={partNames}
+                        getOptionLabel={option => option.part_name}
+                        style={{ width: '100%' }}
+                        onChange={(e,v) => {if(v){setState({...state,part_name:v.part_name})}}}
+                        renderInput={params => (
+                            <TextField {...params} label="Part Name" variant="outlined" fullWidth />
+                        )}
+                    />
+                    {/* <TextField name='part_name' variant="outlined" label="Part Name" values={state.part_name} onChange={e=>setState({...state,part_name:e.target.value})} fullWidth /> */}
                 </Grid>
                 <Grid item lg={12} md={12} sm={12} xs={12} style={{padding:5}}>
                     <Button 

@@ -12,6 +12,7 @@ import IE from '../../../components/IECharts'
 import PO from '../../../components/PO'
 import AssignPOtoBundle from '../../../components/AssignPOtoBundle'
 import ManualStocking from '../../../components/ManualStocking'
+import CardAssignment from '../../../components/CardAssignment'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import ChartIcon from '@material-ui/icons/BarChart'
 import { Typography } from '@material-ui/core'
@@ -104,6 +105,9 @@ const ProductionTracking = props => {
             <ListItem onClick={()=>setSptsValue('manualStocking')} button key={'manualStocking'} style={{backgroundColor:sptsValue === 'manualStocking'?'#418832':'',color:'#fff'}}>
               <ListItemText primary={'Manual Stocking'} />
             </ListItem>
+            {/* <ListItem onClick={()=>setSptsValue('cardAssignment')} button key={'cardAssignment'} style={{backgroundColor:sptsValue === 'cardAssignment'?'#418832':'',color:'#fff'}}>
+              <ListItemText primary={'Card Assignment'} />
+            </ListItem> */}
             {/* <ListItem onClick={()=>setSptsValue('rollIssuance')} button key={'rollIssuance'} style={{backgroundColor:sptsValue === 'rollIssuance'?'#418832':'',color:'#fff'}}>
               <ListItemText primary={'Roll Issuance'} />
             </ListItem> */}
@@ -206,6 +210,9 @@ const ProductionTracking = props => {
             :
             sptsValue === 'ieReport'?
             <IE />
+            :
+            sptsValue === 'cardAssignment'?
+            <CardAssignment />
             :
             sptsValue === 'planSimulate'?
             <PlanSimulate />

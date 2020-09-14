@@ -53,7 +53,9 @@ const ExecuteCutJob = props => {
                 .then(res => res.json())
                 .then(res => {
                     console.log(res)
-                    setCutJobs(res.CutJobs)
+                    if(res.CutJobs){
+                        setCutJobs(res.CutJobs)
+                    }
                 })
                 .catch(err => {
                     console.log('err in fetching', err)

@@ -311,7 +311,7 @@ const PackingListTable = props => {
                             }
                         </Button>
                     </Grid>
-                    {
+                    {/* {
                         state.invoice&&fetched===true?
                         <Grid item lg={2} md={2} sm={2} xs={2} style={{ padding: 5 }}>
                             <Button variant="contained" fullWidth color='primary' onClick={handleDelete} style={{color:'#fff',height:'100%'}} >
@@ -324,7 +324,7 @@ const PackingListTable = props => {
                             </Button>
                         </Grid>
                         :null
-                    }
+                    } */}
                 </Grid>
                 <Grid container style={{ display: 'flex', justifyContent: 'center' }}>
 

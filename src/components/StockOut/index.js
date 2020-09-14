@@ -373,7 +373,7 @@ const StockOut = props => {
                     {/* <TextField name="roll" value={state.roll} onChange={e => setState({ ...state, roll: e.target.value })} variant="outlined" fullWidth label="Roll" /> */}
                     <Autocomplete
                       options={departments}
-                      getOptionLabel={option => option.ToLocation}
+                      getOptionLabel={option => option.Location}
                       style={{ width: '100%' }}
                       onChange={(e, v) => setState({ ...state, department: v })}
                       renderInput={params => (

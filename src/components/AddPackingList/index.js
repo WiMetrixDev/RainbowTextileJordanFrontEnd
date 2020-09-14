@@ -212,38 +212,30 @@ const AddPackingList = props => {
             .then(res => {
                 setLoading(false)
                 console.log('res-------------------------------------------------------------------------------------: ',res)
-                if(res.Error_No===0){
+                if(res.ErrorNumber===0){
                     // setTableValues([])
-                    var totalTime = new Date().getTime()-ajaxTime;
-                    console.log('Response Time: ',parseInt(totalTime/1000),' seconds to add ',res.Responses.length,' items.')
+                    // var totalTime = new Date().getTime()-ajaxTime;
                     props.enqueueSnackbar('Successfully Added Packing List!', { 
-                        variant: 'info',
+                        variant: 'success',
                     })
                 }else{
-                    if(typeof res.Error_Description==='object'){
-                        console.log('objecttypeee')
-                        props.enqueueSnackbar('Validation Errors!', { 
-                            variant: 'info',
-                        })
-                    }else{
-                        props.enqueueSnackbar(res.Error_Description, { 
-                            variant: 'info',
-                        })
-                    }
+                    props.enqueueSnackbar("Error while uploading packing list. Kindly verify packing list.", { 
+                        variant: 'error',
+                    })
                 }
             })
             .catch(err => {
                 console.log('error while fetching',err)
                 setLoading(false)
                 props.enqueueSnackbar('Error While Adding Packing List!', { 
-                    variant: 'info',
+                    variant: 'error',
                 })
             })
         }catch(err){
             console.log('err in try catch',err)
             setLoading(false)
             props.enqueueSnackbar('Error While Adding Packing List!', { 
-                variant: 'info',
+                variant: 'error',
             })
         }
 

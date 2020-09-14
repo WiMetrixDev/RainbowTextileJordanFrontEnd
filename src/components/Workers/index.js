@@ -5,6 +5,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import AddWorkers from '../AddWorkers'
+import SetTarget from '../Workers/SetTarget'
 import WorkersTable from '../WorkersTable'
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
@@ -78,13 +79,17 @@ const Workers = props => {
                         aria-label="full width tabs example"
                         >
                         <Tab label="Add Workers" {...a11yProps(0)} style={{color:'#fff',borderBottom:value===0?'3px solid white':''}} />
-                        <Tab label="View Workers" {...a11yProps(1)} style={{color:'#fff',borderBottom:value===1?'3px solid white':''}}/>
+                        <Tab label="Set Target" {...a11yProps(1)} style={{color:'#fff',borderBottom:value===1?'3px solid white':''}}/>
+                        <Tab label="View Workers" {...a11yProps(2)} style={{color:'#fff',borderBottom:value===2?'3px solid white':''}}/>
                         </Tabs>
                     </AppBar>
                     <TabPanel value={value} index={0} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
                         <AddWorkers />
                     </TabPanel>
                     <TabPanel value={value} index={1} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
+                        <SetTarget />
+                    </TabPanel>
+                    <TabPanel value={value} index={2} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
                         <WorkersTable />
                     </TabPanel>
                 </div>
