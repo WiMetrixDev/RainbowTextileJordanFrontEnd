@@ -1,15 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 //import SwipeableViews from 'react-swipeable-views';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import AddWorkers from '../AddWorkers'
-import SetTarget from '../Workers/SetTarget'
-import WorkersTable from '../WorkersTable'
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Tabs from "@material-ui/core/Tabs";
+import AddWorkers from "../AddWorkers";
+import SetTarget from "../Workers/SetTarget";
+import ViewTarget from "../Workers/ViewTarget";
+import WorkersTable from "../WorkersTable";
+import Tab from "@material-ui/core/Tab";
+import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -37,20 +38,18 @@ TabPanel.propTypes = {
 function a11yProps(index) {
     return {
         id: `full-width-tab-${index}`,
-        'aria-controls': `full-width-tabpanel-${index}`,
+        "aria-controls": `full-width-tabpanel-${index}`,
     };
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
     root: {
         backgroundColor: theme.palette.background.paper,
         width: 500,
     },
 }));
 
-
-const Workers = props => {
-
+const Workers = (props) => {
     const classes = useStyles();
     const theme = useTheme();
     const [value, setValue] = React.useState(0);
@@ -59,44 +58,124 @@ const Workers = props => {
         setValue(newValue);
     };
 
-    const handleChangeIndex = index => {
+    const handleChangeIndex = (index) => {
         setValue(index);
     };
 
-
     return (
         <div style={{ padding: 20 }}>
-            <div style={{ textAlign: 'center' }}><Typography variant="h6">Workers</Typography></div>
-            <div style={{display:'flex',justifyContent:'center'}}>
-                <div style={{width:'100%'}}>
-                    <AppBar position="static" color="secondary" style={{marginTop:15,borderTopLeftRadius:10,borderTopRightRadius:10}}>
+            <div style={{ textAlign: "center" }}>
+                <Typography variant="h6">Workers</Typography>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+                <div style={{ width: "100%" }}>
+                    <AppBar
+                        position="static"
+                        color="secondary"
+                        style={{
+                            marginTop: 15,
+                            borderTopLeftRadius: 10,
+                            borderTopRightRadius: 10,
+                        }}
+                    >
                         <Tabs
-                        value={value}
-                        onChange={handleChange}
-                        indicatorColor="#fff"
-                        textColor="primary"
-                        variant="fullWidth"
-                        aria-label="full width tabs example"
+                            value={value}
+                            onChange={handleChange}
+                            indicatorColor="#fff"
+                            textColor="primary"
+                            variant="fullWidth"
+                            aria-label="full width tabs example"
                         >
-                        <Tab label="Add Workers" {...a11yProps(0)} style={{color:'#fff',borderBottom:value===0?'3px solid white':''}} />
-                        <Tab label="Set Target" {...a11yProps(1)} style={{color:'#fff',borderBottom:value===1?'3px solid white':''}}/>
-                        <Tab label="View Workers" {...a11yProps(2)} style={{color:'#fff',borderBottom:value===2?'3px solid white':''}}/>
+                            <Tab
+                                label="Add Workers"
+                                {...a11yProps(0)}
+                                style={{
+                                    color: "#fff",
+                                    borderBottom:
+                                        value === 0 ? "3px solid white" : "",
+                                }}
+                            />
+                            <Tab
+                                label="Set Target"
+                                {...a11yProps(1)}
+                                style={{
+                                    color: "#fff",
+                                    borderBottom:
+                                        value === 1 ? "3px solid white" : "",
+                                }}
+                            />
+                            <Tab
+                                label="View Workers"
+                                {...a11yProps(2)}
+                                style={{
+                                    color: "#fff",
+                                    borderBottom:
+                                        value === 2 ? "3px solid white" : "",
+                                }}
+                            />
+                            <Tab
+                                label="View Target"
+                                {...a11yProps(3)}
+                                style={{
+                                    color: "#fff",
+                                    borderBottom:
+                                        value === 3 ? "3px solid white" : "",
+                                }}
+                            />
                         </Tabs>
                     </AppBar>
-                    <TabPanel value={value} index={0} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
+                    <TabPanel
+                        value={value}
+                        index={0}
+                        dir={theme.direction}
+                        style={{
+                            backgroundColor: "#f6f6f6",
+                            borderBottomLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                        }}
+                    >
                         <AddWorkers />
                     </TabPanel>
-                    <TabPanel value={value} index={1} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
+                    <TabPanel
+                        value={value}
+                        index={1}
+                        dir={theme.direction}
+                        style={{
+                            backgroundColor: "#f6f6f6",
+                            borderBottomLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                        }}
+                    >
                         <SetTarget />
                     </TabPanel>
-                    <TabPanel value={value} index={2} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
+                    <TabPanel
+                        value={value}
+                        index={2}
+                        dir={theme.direction}
+                        style={{
+                            backgroundColor: "#f6f6f6",
+                            borderBottomLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                        }}
+                    >
                         <WorkersTable />
+                    </TabPanel>
+                    <TabPanel
+                        value={value}
+                        index={3}
+                        dir={theme.direction}
+                        style={{
+                            backgroundColor: "#f6f6f6",
+                            borderBottomLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                        }}
+                    >
+                        <ViewTarget />
                     </TabPanel>
                 </div>
             </div>
         </div>
-    )
+    );
+};
 
-}
-
-export default Workers
+export default Workers;
