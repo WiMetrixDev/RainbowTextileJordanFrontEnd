@@ -12,12 +12,12 @@ const EditPO = props => {
 
     const [state,setState] = React.useState({})
     const [loading,setLoading] = React.useState(false)
-    const [somethingChanged, setSomethingChanged] = React.useState(false)
+    const [sizeID,setSizeID] = React.useState([])
     const [sizes,setSizes] = React.useState([])
+    const [selectivesizes,setSelectiveSizes] = React.useState([])
     const [styles,setStyles] = React.useState([])
     const [colors,setColors] = React.useState([])
     const [modalVisible, setModalVisible] = React.useState(false)
-    const [deleteRow, setDeleteRow] = React.useState (false)
     const [modalValues, setModalValues] = React.useState()
     const [pos,setPOS] = React.useState([])
     const [tableValues,setTableValues] = React.useState([])
@@ -37,6 +37,7 @@ const EditPO = props => {
             fetch(api_endpoint+`/Jordan/Cutting/PO/getPOId.php?po_code=${state.po}`)
             .then(res => res.json()
             .then(res => {
+                console.log('PO res', res)
                 setState({...state,poid:res.POID.po_id})
             }))
             .catch(err => {
@@ -44,24 +45,36 @@ const EditPO = props => {
             })
         }
         
-    },[state.po, deleteRow])
+    },[state.po,state.delete,state.update,state.add])
 
     React.useEffect(()=>{
-        //http://192.168.88.237/Jordan/Cutting/Marker/getSizes.php
-        console.log('state',state)
-        if(state.style){
-            fetch(api_endpoint+`/Jordan/SPTS/order/getColorsForStyleCode.php?style_code=${state.style}`)
+        if(state.newsize){
+            fetch(api_endpoint+`/Jordan/Cutting/PO/getSizeID.php?size_code=${state.newsize}`)
             .then(res => res.json()
             .then(res => {
-                console.log('res colors',res)
-                setColors(res.Colors)
+                console.log('res size ID', res)
+                setState({...state,sizeid:res.SIZEID.size_id})
             }))
             .catch(err => {
                 console.log('err in fetch',err)
             })
 
         }
-    },[state.style])
+    },[state.newsize])
+
+    React.useEffect(()=>{
+        if(state.po){
+            fetch(api_endpoint+`/Jordan/Cutting/PO/getSelectiveSizes.php?po_code=${state.po}`)
+            .then(res => res.json()
+            .then(res => {
+                console.log('res New Sizes',res)
+                setSelectiveSizes(res.Sizes)
+            }))
+            .catch(err => {
+                console.log('err in fetch',err)
+            })
+        }
+    },[state.po,state.add])
 
     React.useEffect(()=>{
         
@@ -98,18 +111,18 @@ const EditPO = props => {
     const handleDelete = (v) => {
         console.log('state: ',state)
         setLoading(true)
-        setDeleteRow(true)
         try{
             let url = api_endpoint+`/Jordan/Cutting/PO/deletePO.php?po_id=${state.poid}&quantity=${v.quantity}&size=${v.size_code}`;
             console.log('url',url)
             fetch(url,{
-                method: 'delete',
+                method: 'post',
             })
             .then(res => res.json())
             .then(res => {
                 setLoading(false)
                 console.log('res: ',res)
                 if(res.Error_No === 0){
+                    setState({...state,delete:!state.delete})
                     props.enqueueSnackbar('Successfully Deleted PO!', { 
                         variant: 'info',
                     })
@@ -140,15 +153,12 @@ const EditPO = props => {
                 variant: 'info',
             })
         }
-
+        // setState({...state, delete:false})
     }
     
-    const handleUpdate = async (style,size,color,quantity,psize) => {
+    const handleUpdate = async (size,quantity,psize) => {
         try{
-            console.log('Style : ',style);
-            console.log('Color : ',color);
-            console.log('Size : ',size);
-            let url = api_endpoint+`/Jordan/Cutting/PO/updatePO.php?po_id=${state.poid}&style=${style}&color=${color}&size=${size}&quantity=${quantity}&pSize=${psize}`;
+            let url = api_endpoint+`/Jordan/Cutting/PO/updatePO.php?po_id=${state.poid}&size=${size}&quantity=${quantity}&pSize=${psize}`;
             console.log('url',url)
             fetch(url,{
                 method: 'post',
@@ -158,6 +168,8 @@ const EditPO = props => {
                 setLoading(false)
                 console.log('res: ',res)
                 if(res.Error_No === 0){
+                    setState({...state, update: !state.update})
+                    setModalVisible(false)
                     props.enqueueSnackbar('Successfully Updated PO!', { 
                         variant: 'info',
                     })
@@ -235,6 +247,55 @@ const EditPO = props => {
         }
     }
 
+    const handleAdd = (poid,pocode,sizeid,sizecode,quantity) => {
+        setLoading(true)
+        try{
+            pocode=pocode.trim().replace(/ /g, '%20');
+            // console.log('PO ID : ',poid,' --- PO Code : ',pocode,' --- SizeID : ',sizeid,' --- Size Code : ',sizecode,' --- Quantity : ',quantity)
+            let url = api_endpoint+`/Jordan/Cutting/PO/addPOSizeMappings.php?po_id=${poid}&po_code=${pocode}&size_id=${sizeid}&size_code=${sizecode}&quantity=${quantity}`;
+            console.log('url',url)
+            fetch(url,{
+                method: 'post',
+            })
+            .then(res => res.json())
+            .then(res => {
+                setLoading(false)
+                console.log('res: ',res)
+                if(res.Error_No===0){
+                    setState({...state, add: !state.add})
+                    props.enqueueSnackbar('Successfully Added Size and Quantity!', { 
+                        variant: 'info',
+                    })
+                }else{
+                    if(typeof res.Error_Description==='object'){
+                        console.log('objecttypeee')
+                        props.enqueueSnackbar('Validation Errors!', { 
+                            variant: 'info',
+                        })
+                    }else{
+                        props.enqueueSnackbar(res.Error_Description, { 
+                            variant: 'info',
+                        })
+                    }
+                }
+            })
+            .catch(err => {
+                console.log('error while fetching',err)
+                setLoading(false)
+                props.enqueueSnackbar('Error While Adding Size and Quantity!', { 
+                    variant: 'info',
+                })
+            })
+        }catch(err){
+            console.log('err in try catch',err)
+            setLoading(false)
+            props.enqueueSnackbar('Error While Adding Size and Quantity!', { 
+                variant: 'info',
+            })
+        }
+
+    }
+
     return (
         <div>
             <Dialog
@@ -254,32 +315,6 @@ const EditPO = props => {
                         <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
                             <Autocomplete
                             //id="combo-box-demo"
-                            options={styles}
-                            getOptionLabel={option => option.style_code}
-                            style={{ width: '100%' }}
-                            defaultValue={()=>styles.filter(s => s.style_code===modalValues.style)[0]}
-                            onChange={(e,v) => setState({...state,style:v.style_code})}
-                            renderInput={params => (
-                                <TextField {...params} label="Style" variant="outlined" fullWidth />
-                            )}
-                            />
-                        </Grid>
-                        <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
-                            <Autocomplete
-                            //id="combo-box-demo"
-                            options={colors}
-                            getOptionLabel={option => option.color}
-                            style={{ width: '100%' }}
-                            defaultValue={()=>colors.filter(c => c.color===modalValues.color)[0]}
-                            onChange={(e,v) => setState({...state,color:v.color})}
-                            renderInput={params => (
-                                <TextField {...params} label="Color" variant="outlined" fullWidth />
-                            )}
-                            />
-                        </Grid>
-                        <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
-                            <Autocomplete
-                            //id="combo-box-demo"
                             options={sizes}
                             getOptionLabel={option => option.size_code}
                             style={{ width: '100%' }}
@@ -292,14 +327,14 @@ const EditPO = props => {
                         </Grid>
                         <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
                             <div style={{padding:10}}>
-                                <TextField name='quantity' variant="outlined" label="Quantity" value={modalValues.quantity} onChange={e=>setModalValues({...modalValues,quantity:e.target.value})} fullWidth />
+                                <TextField name='quantity' variant="outlined" label="Quantity" value={modalValues.quantity} style={{marginTop:-10}} onChange={e=>setModalValues({...modalValues,quantity:e.target.value})} fullWidth />
                             </div>
                         </Grid>
                     </Grid>
                     :null
                     }
                     <div style={{display:'flex',justifyContent:'center'}}>
-                        <Button color='primary' fullWidth onClick={()=>handleUpdate(state.style,state.size,state.color,modalValues.quantity,modalValues.size_code)} variant="contained" style={{margin:10,color:'#fff',height:55}}>
+                        <Button color='primary' fullWidth onClick={()=>handleUpdate(state.size,modalValues.quantity,modalValues.size_code)} variant="contained" style={{margin:10,color:'#fff',height:55}}>
                             {
                                 loading === true?
                                 <CircularProgress color={'#fff'}/>
@@ -319,13 +354,35 @@ const EditPO = props => {
                         options={pos}
                         getOptionLabel={option => option.po_code}
                         onChange={(e,v) => setState({...state,po:v.po_code})}
-                        style={{ width: '50%' }}
+                        style={{ width: '100%' }}
                         renderInput={params => (
                             <TextField {...params} label="Search PO" variant="outlined" fullWidth />
                         )}
                     />
                 </Grid>
-                <Grid item lg={12} md={12} sm={12} xs={12} style={{width: '50%', padding: 5, display:'flex' , justifyContent:'center'}}>
+                <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5, width: '100%'}}>
+                    <Autocomplete
+                        //id="combo-box-demo"
+                        options={selectivesizes}
+                        //()=>sizes.filter(o => o.size_code!==(tableValues.map((v,i) => (v.size_code))))
+                        getOptionLabel={option => option.size_code}
+                        style={{ width: '100%' }}
+                        onChange={(e,v) => setState({...state,newsize:v.size_code})}
+                        renderInput={params => (
+                            <TextField {...params} label="Size" variant="outlined" fullWidth />
+                        )}
+                    />
+                </Grid>
+                <Grid item lg={6} md={6} sm={6} xs={6} style={{padding:5}}>
+                    <div style={{padding:10}}>
+                        <TextField name='quantity' variant="outlined" label="Quantity" style={{marginTop:-10, width: '400px'}} onChange={e=>setModalValues({...modalValues,quantity:e.target.value})}  />
+                        <Button color='primary' onClick={()=> handleAdd(state.poid,state.po,state.sizeid,state.newsize,modalValues.quantity)} variant="contained" style={{marginLeft: 10, marginTop: -10, padding: 15, color:'#fff'}}>Add</Button>
+                    </div>
+                </Grid>
+            </Grid>
+            <hr/>
+            <Grid container>
+                <Grid item lg={12} md={12} sm={12} xs={12} style={{padding: 5, display:'flex' , justifyContent:'center'}}>
                     <TextField name='RenamePO' type='text' variant="outlined" value={state.po} onChange={e=>setState({...state,po:e.target.value})} fullWidth />
                     <Button color='primary' onClick={()=> handleUpdatePOCode(state.poid,state.po)} variant="contained" style={{margin:10, color:'#fff'}}>Update</Button>
                 </Grid>
@@ -340,8 +397,6 @@ const EditPO = props => {
                         :
                         <table style={{overflowY: 'scroll' }}>
                             <tr>
-                                <th style={{textAlign:'center'}}>Style</th>
-                                <th style={{textAlign:'center'}}>Color</th>
                                 <th style={{textAlign:'center'}}>Size</th>
                                 <th style={{textAlign:'center'}}>Quantity</th>
                                 <th style={{textAlign:'center'}}>Actions</th>
@@ -350,8 +405,6 @@ const EditPO = props => {
                                 {
                                     tableValues && tableValues.map((v,i) => (
                                         <tr>
-                                            <td style={{textAlign:'center'}}>{v.style}</td>
-                                            <td style={{textAlign:'center'}}>{v.color}</td>
                                             <td style={{textAlign:'center'}}>{v.size_code}</td>
                                             <td style={{textAlign:'center'}}>{v.quantity}</td>
                                             <td style={{textAlign:'center'}}>
