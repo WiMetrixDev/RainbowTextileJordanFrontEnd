@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
-import AddPO from '../AddPO'
-import POTable from '../POTable'
+import AddPO from '../AddPO';
+import EditPO from '../EditPO';
+import POTable from '../POTable';
+import EditPODetail from '../EditPODetail';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
@@ -78,15 +80,17 @@ const PO = props => {
                         aria-label="full width tabs example"
                         >
                         <Tab label="Add PO" {...a11yProps(0)} style={{color:'#fff',borderBottom:value===0?'3px solid white':''}} />
-                        <Tab label="View PO" {...a11yProps(1)} style={{color:'#fff',borderBottom:value===1?'3px solid white':''}}/>
+                        <Tab label="Edit PO" {...a11yProps(1)} style={{color:'#fff',borderBottom:value===1?'3px solid white':''}} />
+                        <Tab label="View PO" {...a11yProps(2)} style={{color:'#fff',borderBottom:value===2?'3px solid white':''}}/>
                         </Tabs>
                     </AppBar>
                     <TabPanel value={value} index={0} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
                         <AddPO />
-                        {/* <div>asdf</div> */}
                     </TabPanel>
                     <TabPanel value={value} index={1} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
-                        {/* <div>ghgk</div> */}
+                        <EditPO />
+                    </TabPanel>
+                    <TabPanel value={value} index={2} dir={theme.direction} style={{backgroundColor:'#f6f6f6',borderBottomLeftRadius:10,borderBottomRightRadius:10}}>
                         <POTable />
                     </TabPanel>
                 </div>
