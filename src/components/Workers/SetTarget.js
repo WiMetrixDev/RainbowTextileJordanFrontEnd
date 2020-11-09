@@ -270,6 +270,7 @@ class ComponentToPrint extends React.Component {
 const SetTarget = React.forwardRef((props, ref) => {
     // const [designations,setDesignations] = React.useState([])
     const [deparments, setDepartments] = React.useState([]);
+    const [lines, setLines] = React.useState([]);
     const [workers, setWorkers] = React.useState([]);
     const [state, setState] = React.useState({});
     const [loading, setLoading] = React.useState(false);
@@ -397,6 +398,53 @@ const SetTarget = React.forwardRef((props, ref) => {
             console.log("err in fetch", err);
         }
     };
+    const fetchWorkersForStiching = () => {
+        setWorkers([]);
+        try {
+            fetch(
+                api_endpoint +
+                    "/Jordan/SPTS/worker/getWorkersForStitching.php?department_id=" +
+                    state.department.department_id +
+                    "&&line_id=" +
+                    state.line["line id"],
+                {
+                    method: "post",
+                }
+            )
+                .then((res) =>
+                    res.json().then((res) => {
+                        console.log("res departments", res);
+                        if (res.Workers) {
+                            setWorkers(res.Workers);
+                        } else {
+                            setWorkers([]);
+                            props.enqueueSnackbar("No worker found!", {
+                                variant: "info",
+                            });
+                            console.log(workers);
+                        }
+                    })
+                )
+                .catch((err) => {
+                    console.log("err in fetch", err);
+                });
+        } catch (err) {
+            console.log("err in fetch", err);
+        }
+    };
+    React.useEffect(() => {
+        if (state.department) {
+            if (state.department.department_id === 11) {
+                console.log("stiching");
+                setState({ ...state, lineFilter: true });
+            } else {
+                setState({ ...state, lineFilter: false });
+            }
+        } else {
+            setWorkers([]);
+            setState({ ...state, lineFilter: false });
+        }
+    }, [state.department]);
 
     React.useEffect(() => {
         try {
@@ -405,6 +453,29 @@ const SetTarget = React.forwardRef((props, ref) => {
                     res.json().then((res) => {
                         console.log("res departments", res);
                         setDepartments(res.Departments);
+                    })
+                )
+                .catch((err) => {
+                    console.log("err in fetch", err);
+                });
+        } catch (err) {
+            console.log("err in fetch", err);
+        }
+
+        try {
+            fetch(api_endpoint + "/Jordan/SQMS/getAllLines.php", {
+                method: "post",
+            })
+                .then((res) =>
+                    res.json().then((res) => {
+                        console.log("res Lines", res);
+                        if (res.Lines) {
+                            setLines(res.Lines);
+                        } else {
+                            props.enqueueSnackbar("No Lines found!", {
+                                variant: "info",
+                            });
+                        }
                     })
                 )
                 .catch((err) => {
@@ -445,6 +516,32 @@ const SetTarget = React.forwardRef((props, ref) => {
                     />
                     {/* <TextField name="department" variant="outlined" fullWidth label="Department"/> */}
                 </Grid>
+                {state.lineFilter == true ? (
+                    <Grid
+                        item
+                        lg={3}
+                        md={3}
+                        sm={6}
+                        xs={12}
+                        style={{ padding: 5 }}
+                    >
+                        <Autocomplete
+                            //id="combo-box-demo"
+                            options={lines}
+                            getOptionLabel={(option) => option["line code"]}
+                            style={{ width: "100%" }}
+                            onChange={(e, v) => setState({ ...state, line: v })}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Lines"
+                                    variant="outlined"
+                                    fullWidth
+                                />
+                            )}
+                        />
+                    </Grid>
+                ) : null}
                 {state.department ? (
                     <>
                         <Grid
@@ -459,7 +556,13 @@ const SetTarget = React.forwardRef((props, ref) => {
                                 color="primary"
                                 variant="contained"
                                 style={{ color: "#fff", height: 55 }}
-                                onClick={fetchWorkers}
+                                onClick={() => {
+                                    if (state.lineFilter && state.line) {
+                                        fetchWorkersForStiching();
+                                    } else {
+                                        fetchWorkers();
+                                    }
+                                }}
                                 fullWidth
                             >
                                 fetch workers
