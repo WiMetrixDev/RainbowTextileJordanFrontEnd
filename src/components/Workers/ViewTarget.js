@@ -103,43 +103,28 @@ function MyTable({ columns, data, handleUpload, department, date }) {
         useGlobalFilter,
         usePagination,
         useRowSelect
-        // (hooks) => {
-        //     hooks.visibleColumns.push((columns) => [
-        //         // Let's make a column for selection
-        //         {
-        //             // The header can use the table's getToggleAllRowsSelectedProps method
-        //             // to render a checkbox
-        //             // Header: ({ getToggleAllRowsSelectedProps }) => (
-        //             //     // <div>
-        //             //     //     <IndeterminateCheckbox
-        //             //     //         {...getToggleAllRowsSelectedProps()}
-        //             //     //     />
-        //             //     // </div>
-        //             // ),
-        //             // The cell can use the individual row's getToggleRowSelectedProps method
-        //             // to the render a checkbox
-        //             // Cell: ({ row }) => (
-        //             //     // <div>
-        //             //     //     <IndeterminateCheckbox
-        //             //     //         {...row.getToggleRowSelectedProps()}
-        //             //     //     />
-        //             //     // </div>
-        //             // ),
-        //         },
-        //         ...columns,
-        //     ]);
-        // }
     );
-    // // console.log('porps', props)
-    // console.log('____________________________________________________________________________',previousPage,
-    // canPreviousPage,
-    // nextPage,
-    // canNextPage,
-    // pageIndex,
-    // pageOptions,
-    // gotoPage,
-    // pageSize,
-    // setPageSize)
+
+    function caclulateTotalOvertime() {
+        let totalOvertime;
+        var hour = 0;
+        var minute = 0;
+        var second = 0;
+
+        data.map((dt) => {
+            let time = dt.target;
+            var splitTime1 = time.split(":");
+            hour = parseInt(splitTime1[0]) + parseInt(hour);
+            minute = parseInt(splitTime1[1]) + parseInt(minute);
+            hour = hour + minute / 60;
+            minute = minute % 60;
+            second = parseInt(splitTime1[2]) + parseInt(second);
+            minute = minute + second / 60;
+            second = second % 60;
+        });
+
+        return hour + ":" + minute + ":" + second;
+    }
 
     return (
         <div>
@@ -243,6 +228,7 @@ function MyTable({ columns, data, handleUpload, department, date }) {
                 <thead>
                     {headerGroups.map((headerGroup) => (
                         <tr {...headerGroup.getHeaderGroupProps()}>
+                            <th>Serial</th>
                             {headerGroup.headers.map((column) => (
                                 <th {...column.getHeaderProps()}>
                                     {column.render("Header")}
@@ -257,7 +243,7 @@ function MyTable({ columns, data, handleUpload, department, date }) {
                         // console.log('row: ',row)
                         return (
                             <tr>
-                                {/* <td>{i+1}</td> */}
+                                <td style={{ textAlign: "center" }}>{i + 1}</td>
                                 {row.cells.map((cell) => {
                                     return (
                                         <td
@@ -268,15 +254,18 @@ function MyTable({ columns, data, handleUpload, department, date }) {
                                         </td>
                                     );
                                 })}
-                                {/* <td style={{ textAlign: 'center' }}><EditIcon color='primary' onClick={() => {
-                    setModalVisible(true)
-                    setModalValues(row.original)
-                }} style={{ cursor: 'pointer', marginRight: 15 }} /><DeleteIcon color='primary' onClick={() => {
-                    handleDelete(row.original); setOpenBackdrop(true);
-                }} style={{ cursor: 'pointer' }} /></td> */}
                             </tr>
                         );
                     })}
+
+                    <tr>
+                        <td colSpan="5" style={{ textAlign: "center" }}>
+                            TOTAL OVERTIME
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                            {caclulateTotalOvertime()}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             {/* <div
