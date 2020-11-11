@@ -98,7 +98,7 @@ function MyTable({ columns, data, handleUpload, department, date }) {
         {
             columns,
             data,
-            initialState: { pageSize: 50 },
+            initialState: { pageSize: 1000000 },
         },
         useGlobalFilter,
         usePagination,
@@ -112,17 +112,21 @@ function MyTable({ columns, data, handleUpload, department, date }) {
         var second = 0;
 
         data.map((dt) => {
-            let time = dt.target;
-            var splitTime1 = time.split(":");
-            hour = parseInt(splitTime1[0]) + parseInt(hour);
-            minute = parseInt(splitTime1[1]) + parseInt(minute);
-            hour = hour + minute / 60;
-            minute = minute % 60;
-            second = parseInt(splitTime1[2]) + parseInt(second);
-            minute = minute + second / 60;
-            second = second % 60;
-        });
+            if (dt.target) {
+                let time = dt.target;
+                // if (splitTime1) {
+                var splitTime1 = time.split(":");
+                hour = parseInt(splitTime1[0]) + parseInt(hour);
+                minute = parseInt(splitTime1[1]) + parseInt(minute);
+                hour = hour + minute / 60;
+                minute = minute % 60;
+                second = parseInt(splitTime1[2]) + parseInt(second);
+                minute = minute + second / 60;
+                second = second % 60;
+            }
 
+            // }
+        });
         return hour + ":" + minute + ":" + second;
     }
 
@@ -337,7 +341,7 @@ class ComponentToPrint extends React.Component {
 const SetTarget = React.forwardRef((props, ref) => {
     // const [designations,setDesignations] = React.useState([])
     var d = new Date();
-
+    const [lines, setLines] = React.useState([]);
     const [deparments, setDepartments] = React.useState([]);
     const [workers, setWorkers] = React.useState([]);
     const [state, setState] = React.useState({});
@@ -466,6 +470,56 @@ const SetTarget = React.forwardRef((props, ref) => {
         }
     };
 
+    const fetchWorkersForStiching = () => {
+        setWorkers([]);
+        try {
+            fetch(
+                api_endpoint +
+                    "/Jordan/SPTS/worker/getTargetsWorkersForStitching.php?department_id=" +
+                    state.department.department_id +
+                    "&&line_id=" +
+                    state.line["line id"] +
+                    "&&attendance_date=" +
+                    date,
+                {
+                    method: "post",
+                }
+            )
+                .then((res) =>
+                    res.json().then((res) => {
+                        console.log("res departments", res);
+                        if (res.Workers) {
+                            setWorkers(res.Workers);
+                        } else {
+                            setWorkers([]);
+                            props.enqueueSnackbar("No worker found!", {
+                                variant: "info",
+                            });
+                            console.log(workers);
+                        }
+                    })
+                )
+                .catch((err) => {
+                    console.log("err in fetch", err);
+                });
+        } catch (err) {
+            console.log("err in fetch", err);
+        }
+    };
+    React.useEffect(() => {
+        if (state.department) {
+            if (state.department.department_id === 11) {
+                console.log("stiching");
+                setState({ ...state, lineFilter: true });
+            } else {
+                setState({ ...state, lineFilter: false });
+            }
+        } else {
+            setWorkers([]);
+            setState({ ...state, lineFilter: false });
+        }
+    }, [state.department]);
+
     React.useEffect(() => {
         try {
             fetch(api_endpoint + "/Jordan/SPTS/worker/getDepartments.php")
@@ -473,6 +527,29 @@ const SetTarget = React.forwardRef((props, ref) => {
                     res.json().then((res) => {
                         console.log("res departments", res);
                         setDepartments(res.Departments);
+                    })
+                )
+                .catch((err) => {
+                    console.log("err in fetch", err);
+                });
+        } catch (err) {
+            console.log("err in fetch", err);
+        }
+
+        try {
+            fetch(api_endpoint + "/Jordan/SQMS/getAllLines.php", {
+                method: "post",
+            })
+                .then((res) =>
+                    res.json().then((res) => {
+                        console.log("res Lines", res);
+                        if (res.Lines) {
+                            setLines(res.Lines);
+                        } else {
+                            props.enqueueSnackbar("No Lines found!", {
+                                variant: "info",
+                            });
+                        }
                     })
                 )
                 .catch((err) => {
@@ -513,6 +590,33 @@ const SetTarget = React.forwardRef((props, ref) => {
                     />
                     {/* <TextField name="department" variant="outlined" fullWidth label="Department"/> */}
                 </Grid>
+
+                {state.lineFilter == true ? (
+                    <Grid
+                        item
+                        lg={3}
+                        md={3}
+                        sm={6}
+                        xs={12}
+                        style={{ padding: 5 }}
+                    >
+                        <Autocomplete
+                            //id="combo-box-demo"
+                            options={lines}
+                            getOptionLabel={(option) => option["line code"]}
+                            style={{ width: "100%" }}
+                            onChange={(e, v) => setState({ ...state, line: v })}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Lines"
+                                    variant="outlined"
+                                    fullWidth
+                                />
+                            )}
+                        />
+                    </Grid>
+                ) : null}
                 {state.department ? (
                     <div
                         style={{
@@ -550,7 +654,13 @@ const SetTarget = React.forwardRef((props, ref) => {
                                 color="primary"
                                 variant="contained"
                                 style={{ color: "#fff", height: 55 }}
-                                onClick={fetchWorkers}
+                                onClick={() => {
+                                    if (state.lineFilter && state.line) {
+                                        fetchWorkersForStiching();
+                                    } else {
+                                        fetchWorkers();
+                                    }
+                                }}
                                 fullWidth
                             >
                                 fetch workers
@@ -574,7 +684,16 @@ const SetTarget = React.forwardRef((props, ref) => {
                                                 color: "#fff",
                                                 height: 55,
                                             }}
-                                            onClick={fetchWorkers}
+                                            onClick={() => {
+                                                if (
+                                                    state.lineFilter &&
+                                                    state.line
+                                                ) {
+                                                    fetchWorkersForStiching();
+                                                } else {
+                                                    fetchWorkers();
+                                                }
+                                            }}
                                             fullWidth
                                         >
                                             Print
