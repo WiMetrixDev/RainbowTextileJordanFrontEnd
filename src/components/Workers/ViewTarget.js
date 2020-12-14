@@ -72,7 +72,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 );
 
-function MyTable({ columns, data, handleUpload, department, date }) {
+function MyTable({ columns, data, handleUpload, department, date, line }) {
     // Use the useTable hook to create your table configuration
     const {
         getTableProps,
@@ -127,7 +127,7 @@ function MyTable({ columns, data, handleUpload, department, date }) {
 
             // }
         });
-        return hour + ":" + minute + ":" + second;
+        return parseInt(hour) + ":" + parseInt(minute) + ":" + parseInt(second);
     }
 
     return (
@@ -160,6 +160,7 @@ function MyTable({ columns, data, handleUpload, department, date }) {
                 <Typography>
                     DEPARTMENT: {department.department_code}
                 </Typography>
+                <Typography>LINE: {line["line code"]}</Typography>
                 <Typography>Date: {date}</Typography>
                 <Typography>OVER TIME SHEET</Typography>
             </div>
@@ -332,6 +333,7 @@ class ComponentToPrint extends React.Component {
                     handleUpload={this.state.props.handleUpload}
                     date={this.state.props.date}
                     department={this.state.props.department}
+                    line={this.state.props.line}
                 />
             </div>
         );
@@ -742,6 +744,7 @@ const SetTarget = React.forwardRef((props, ref) => {
                         ]}
                         data={workers}
                         date={date}
+                        line={state.line ? state.line : ""}
                         handleUpload={handleUpload}
                         department={state.department}
                     />

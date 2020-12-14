@@ -16,6 +16,8 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { api_endpoint } from "../../util/config";
 import { withSnackbar } from "notistack";
 import { useTable, usePagination, useGlobalFilter } from "react-table";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 function GlobalFilter({
     preGlobalFilteredRows,
@@ -235,7 +237,7 @@ const WorkersTable = (props) => {
         try {
             let url =
                 api_endpoint +
-                `/Jordan/SPTS/worker/updateWorker.php?worker_id=${editState.worker_id}&worker_code=${editState.worker_code}&worker_name=${editState.worker_name}&department_id=${editState.department_id}&department_code=${editState.department_code}&designator_id=${editState.designator_id}&designator_code=${editState.designator_code}`;
+                `/Jordan/SPTS/worker/updateWorker.php?worker_id=${editState.worker_id}&worker_code=${editState.worker_code}&worker_name=${editState.worker_name}&department_id=${editState.department_id}&department_code=${editState.department_code}&designator_id=${editState.designator_id}&designator_code=${editState.designator_code}&fixed_salary_flag=${editState.fixed_salary_flag}`;
             console.log("url", url);
             fetch(url, {
                 method: "post",
@@ -286,6 +288,7 @@ const WorkersTable = (props) => {
                 .then((res) => {
                     console.log(res);
                     setTableValues(res.Workers);
+                    console.log(res.Workers);
                 })
                 .catch((err) => {
                     console.log("err in fetching", err);
@@ -463,8 +466,23 @@ const WorkersTable = (props) => {
                                             option.designation_code
                                         }
                                         style={{ width: "100%" }}
-                                        disabled={true}
-                                        //onChange={(e,v) => setState({...state,designation:v})}
+                                        // disabled={true}
+                                        onChange={(e, v) =>
+                                            setEditState({
+                                                ...editState,
+                                                designator_id: v.designation_id,
+                                                designator_code:
+                                                    v.designation_code,
+                                            })
+                                        }
+                                        defaultValue={() => {
+                                            return {
+                                                designation_id:
+                                                    editState.designator_id,
+                                                designation_code:
+                                                    editState.designator_code,
+                                            };
+                                        }}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
@@ -473,6 +491,42 @@ const WorkersTable = (props) => {
                                                 fullWidth
                                             />
                                         )}
+                                    />
+                                </Grid>
+
+                                <Grid
+                                    item
+                                    lg={12}
+                                    md={12}
+                                    sm={12}
+                                    xs={12}
+                                    style={{ padding: 5, width: "100%" }}
+                                >
+                                    <FormControlLabel
+                                        label="Fixed Salary"
+                                        control={
+                                            <Switch
+                                                checked={
+                                                    editState.fixed_salary_flag
+                                                }
+                                                onChange={(event) => {
+                                                    let state = 0;
+                                                    if (
+                                                        editState.fixed_salary_flag ===
+                                                        0
+                                                    ) {
+                                                        state = 1;
+                                                    } else {
+                                                        state = 0;
+                                                    }
+                                                    setEditState({
+                                                        ...editState,
+                                                        fixed_salary_flag: state,
+                                                    });
+                                                }}
+                                                color="primary"
+                                            />
+                                        }
                                     />
                                 </Grid>
                                 <Grid
@@ -552,6 +606,10 @@ const WorkersTable = (props) => {
                                 {
                                     Header: "Department",
                                     accessor: "department_code",
+                                },
+                                {
+                                    Header: "Designation",
+                                    accessor: "designator_code",
                                 },
                             ]}
                             data={tableValues}
